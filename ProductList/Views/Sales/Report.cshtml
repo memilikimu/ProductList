@@ -1,0 +1,217 @@
+﻿@{
+    Layout = null;
+    int amount = 0;
+    int amountSold = 0;
+    int total = 0;
+    int totalSold = 0;
+}
+@model List<SalesView>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Laporan Penjualan Produk</title>
+    <style>
+        body {
+            font-family: Calibri, sans-serif;
+            color: #595959;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .a4 {
+            /* width: 21cm;
+                            height: 29.7cm; */
+            padding: 2cm;
+            box-sizing: border-box;
+        }
+
+        .title {
+            font-size: 16pt;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            margin-bottom: 40px;
+        }
+
+        .table-container {
+            margin-top: 15px;
+            margin-bottom: 40px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th {
+            background-color: #00B0F0;
+            color: white;
+            height: 30px;
+            border: 1px solid #00B0F0;
+        }
+
+        td {
+            height: 20px;
+            border-bottom: 1px solid #00B0F0;
+        }
+
+        th, td {
+            padding: 4px;
+            font-size: 11pt;
+        }
+
+        .col-a {
+            width: 24%;
+        }
+
+        .col-b, .col-c, .col-d, .col-e {
+            width: 14%;
+        }
+
+        .col-f {
+            width: 20%;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .left {
+            text-align: left;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .underline-blue {
+            border-bottom: 2px solid #00B0F0;
+            padding-bottom: 2px;
+        }
+
+        .row-gap {
+            margin-top: 10px;
+        }
+
+        .currency {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4">
+        <div class="title">Laporan Penjualan Produk</div>
+
+        <!-- Tanggal -->
+        <table style="width: 34%; margin-left: auto;" class="underline-blue">
+            <tr>
+                <td style="width: 50%; font-weight: bold; text-align: left;">Tanggal:</td>
+                <td style="width: 50%; text-align: right;">@DateTime.Now.ToString("dd/MM/yyyy")</td>
+            </tr>
+        </table>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-a">Produk</th>
+                        <th class="col-b">Harga Jual</th>
+                        <th class="col-c">Harga Beli</th>
+                        <th class="col-d">Jumlah</th>
+                        <th class="col-e">Jum Terjual</th>
+                        <th class="col-f">Total Terjual</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        amount += item.Amount;
+                        amountSold += item.SellAmount;
+                        total += item.Total;
+                        totalSold += item.TotalSold;
+
+                        <tr>
+                            <td>@item.Product</td>
+                            <td class="currency">@("Rp " + String.Format("{0:N0}", @item.Price))</td>
+                            <td class="currency">@("Rp " + String.Format("{0:N0}", @item.SellPrice))</td>
+                            <td class="right">@item.Amount</td>
+                            <td class="right">@item.SellAmount</td>
+                            <td class="currency">@("Rp " + String.Format("{0:N0}", @item.TotalSold))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer Teks dan Ringkasan -->
+        <div class="row-gap">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 38%;" class="underline-blue left bold">
+                        Selisih Kuantitas:
+                    </td>
+                    <td style="border-bottom:none; width: 14%;" />
+                    <td style="width:48%;" class="underline-blue left bold">
+                        Selisih Keuntungan:
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Total Jumlah -->
+
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 24%;border-bottom:none;">
+                        Total Jumlah
+                    </td>
+                    <td style="width: 14%;border-bottom:none;" class="right">
+                        @amount
+                    </td>
+                    <td style="border-bottom:none; width: 14%;" />
+                    <td style="border-bottom:none; width: 28%;"> Total Pembelian</td>
+                    <td style="border-bottom:none; width:20%; margin-right:auto" class="right currency">
+                        @("Rp " + String.Format("{0:N0}", total))
+                    </td>
+                </tr>
+            </table>
+
+
+            <!-- Total Pembelian -->
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 24%;border-bottom:none;">
+                        Total Jumlah Terjual
+                    </td>
+                    <td style="width: 14%;border-bottom:none;" class="right">
+                        @amountSold
+                    </td>
+                    <td style="border-bottom:none; width: 14%;" />
+                    <td style="border-bottom:none; width: 28%;">
+                        Total Penjualan
+                    </td>
+                    <td style="border-bottom:none; width:20%; margin-right:auto" class="right currency">
+                        @("Rp " + String.Format("{0:N0}", totalSold))
+                    </td>
+                </tr>
+            </table>
+
+
+
+            <!-- Versi bold dan garis atas biru -->
+            <table style="width: 48%; margin-left: auto;border-top: 2px solid #00B0F0; padding-top: 5px;">
+                <tr>
+                    <td style="border-bottom:none; width: 60%;" class="left bold">
+                        Total Selisih Keuntungan
+                    </td>
+                    <td style="border-bottom:none; width: 40%; color:@((totalSold-total) <= 0?"red":"green")" class="right currency bold">@("Rp " + String.Format("{0:N0}", totalSold - total))</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

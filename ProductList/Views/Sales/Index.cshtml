@@ -1,0 +1,75 @@
+﻿@model List<SalesView>
+
+<h1>Produk Sales</h1>
+
+<form method="get" action="/Sales/Index">
+    <input type="text" name="searchString" value="@ViewBag.SearchString" placeholder="Cari Produk..." />
+    
+    <select name="pageSize" onchange="this.form.submit()">
+        <option value="5" selected=@(ViewBag.PageSize == 5 ? true : false)>5</option>
+        <option value="10" selected=@(ViewBag.PageSize == 10 ?  true : false)>10</option>
+        <option value="20" selected=@(ViewBag.PageSize == 20 ? true : false)>20</option>
+    </select>
+
+    <button type="submit">Cari</button>
+</form>
+
+<br />
+
+<a href="/Sales/Create">Tambah Penjualan</a>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Produk</th>
+            <th>Harga</th>
+            <th>Jumlah</th>
+            <th>Harga Jual</th>
+            <th>Jumlah Terjual</th>
+            <th>Total Terjual</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Product</td>
+                <td>@item.Price.ToString("N0")</td>
+                <td>@item.Amount</td>
+                <td>@item.SellPrice.ToString("N0")</td>
+                <td>@item.SellAmount</td>
+                <td>@item.Total.ToString("N0")</td>
+                <td>
+                    <a href="/Sales/Edit/@item.Id">Edit</a> |
+                    <a href="/Sales/Delete/@item.Id">Hapus</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+    
+<br />
+
+<div>
+    <a href="@(Url.Action("ExportExcel", "Sales", new { searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize, page = (ViewBag.CurrentPage) }))">Export ke Excel</a>
+    <a href="@(Url.Action("GeneratePdf", "Sales", new { searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize, page = (ViewBag.CurrentPage) }))">Export ke PDF</a>
+</div>
+
+<br />
+
+<div>
+    @if (ViewBag.CurrentPage > 1)
+    {
+        <a href="@(Url.Action("Index", "Sales", new { searchString = ViewBag.SearchString, pageSize = ViewBag.PageSize, page = (ViewBag.CurrentPage - 1) }))">@(ViewBag.CurrentPage - 1)</a>
+
+        //<a href="/Sales/Index?searchString=@ViewBag.SearchString&pageSize=@ViewBag.PageSize&page=@(ViewBag.CurrentPage - 1)">Previous</a>
+    }
+
+    Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+
+    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+    {
+        <a href="/Sales/Index?searchString=@ViewBag.SearchString&pageSize=@ViewBag.PageSize&page=@(ViewBag.CurrentPage + 1)">Next</a>
+    }
+</div>

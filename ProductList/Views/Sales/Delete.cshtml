@@ -1,0 +1,20 @@
+﻿@model SalesView
+
+<h1>Hapus Penjualan</h1>
+
+<h3>Apakah yakin ingin menghapus data ini?</h3>
+
+<div>
+    <p><strong>Produk:</strong> @Model.Product</p>
+    <p><strong>Harga:</strong> @Model.Price.ToString("N0")</p>
+    <p><strong>Jumlah:</strong> @Model.Amount</p>
+    <p><strong>Harga:</strong> @Model.SellAmount.ToString("N0")</p>
+    <p><strong>Jumlah:</strong> @Model.SellPrice</p>
+    <p><strong>Total:</strong> @Model.Total.ToString("N0")</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit">Hapus</button>
+    <a href="/Penjualan/Index">Batal</a>
+</form>
