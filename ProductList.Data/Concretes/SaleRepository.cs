@@ -1,125 +1,73 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using ProductList.Data.Contexts;
 using ProductList.Data.Entities;
 using ProductList.Data.Interfaces;
 using ProductList.Data.Utils;
-using System.Runtime.CompilerServices;
 
 namespace ProductList.Data.Concretes
 {
-    public abstract class SaleRepository:ISaleRepository
+    public class SaleRepository : ISaleRepository
     {
         private readonly string _connectionString;
         public SaleRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")!;
+            _connectionString = configuration.GetConnectionString("DbConnection")!;
         }
-        public async Task<IEnumerable<Sale>> GetAllAsync(string search, int page, int size)
+        public async Task<IEnumerable<Sale>> GetAllAsync(string product, int page, int pageSize)
         {
+            
+            SqlParameter[] parameters = new SqlParameter[3] {
+                new SqlParameter("@Product", product ?? (object)DBNull.Value),
+                new SqlParameter("@PageSize", pageSize),
+                new SqlParameter("@PageNumber", page)
+            };
+            
+            return await QueryHelper.CommonModelsReader(_connectionString, "sp_GetAllSale", SaleDbHelper.MapReaderToModel, parameters);
+        }
 
-            var sales = new List<Sale>();
-
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_GetAllSale", conn);
-            await conn.OpenAsync();
-            using var reader = await cmd.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
+        public async Task<int> GetCountAsync(string product)
+        {
+            using (var conn = new SqlConnection(_connectionString))
             {
-                sales.Add(new Sale
+                using (var cmd = new SqlCommand("sp_GetCountSale", conn))
                 {
-                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                    Product = reader.GetString(reader.GetOrdinal("Product")),
-                    Price = reader.GetInt32(reader.GetOrdinal("Price")),
-                    Amount = reader.GetInt32(reader.GetOrdinal("Amount")),
-                    SellPrice = reader.GetInt32(reader.GetOrdinal("SellPrice")),
-                    SellAmount = reader.GetInt32(reader.GetOrdinal("SellAmount"))
-                });
+                    cmd.Parameters.AddWithValue("@Product", product ?? (object)DBNull.Value);
+                    await conn.OpenAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return reader.GetInt32(0);
+                        }
+                    }
+                }
             }
-
-            return sales;
-        }
-
-        public async Task<int> GetCountAsync(string search)
-        {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_GetCountSale", conn);
-            await conn.OpenAsync();
-            using var reader = await cmd.ExecuteReaderAsync();
-
-            if (await reader.ReadAsync())
-            {
-                return reader.GetInt32(0);
-            }
-
             return 0;
         }
 
         public async Task<Sale> GetByIdAsync(object id)
         {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_GetSaleById", conn);
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            await conn.OpenAsync();
-            using var reader = await cmd.ExecuteReaderAsync();
-
-            if (await reader.ReadAsync())
-            {
-                return new Sale
-                {
-                    Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                    Product = reader.GetString(reader.GetOrdinal("Product")),
-                    Price = reader.GetInt32(reader.GetOrdinal("Price")),
-                    Amount = reader.GetInt32(reader.GetOrdinal("Amount")),
-                    SellPrice = reader.GetInt32(reader.GetOrdinal("SellPrice")),
-                    SellAmount = reader.GetInt32(reader.GetOrdinal("SellAmount"))
-                };
-            }
-
-            return null;
+            SqlParameter[] parameters = new SqlParameter[1] {
+                new SqlParameter("@Id", id)
+            };
+            return await QueryHelper.CommonModelReader(_connectionString, "sp_GetSaleById", SaleDbHelper.MapReaderToModel, parameters);
         }
+
         public async Task AddAndSaveAsync(Sale model)
         {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_InsertSale", conn);
-
-            cmd.Parameters.AddWithValue("@Product", model.Product ?? (object)DBNull.Value);
-            cmd.Parameters.AddWithValue("@Price", model.Price);
-            cmd.Parameters.AddWithValue("@Amount", model.Amount);
-            cmd.Parameters.AddWithValue("@SellPrice", model.SellPrice);
-            cmd.Parameters.AddWithValue("@SellAmount", model.SellAmount);
-
-            await conn.OpenAsync();
-            await cmd.ExecuteNonQueryAsync();
+            await QueryHelper.CommonExecNonQuery(_connectionString, "sp_InsertSale", SaleDbHelper.MapToParam(model, false));
         }
         public async Task UpdateAndSaveAsync(Sale model)
         {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_UpdateSale", conn);
-
-            cmd.Parameters.AddWithValue("@Id", model.Product ?? (object)DBNull.Value);//dasds
-            cmd.Parameters.AddWithValue("@Product", model.Product ?? (object)DBNull.Value);
-            cmd.Parameters.AddWithValue("@Price", model.Price);
-            cmd.Parameters.AddWithValue("@Amount", model.Amount);
-            cmd.Parameters.AddWithValue("@SellPrice", model.SellPrice);
-            cmd.Parameters.AddWithValue("@SellAmount", model.SellAmount);
-
-            await conn.OpenAsync();
-            await cmd.ExecuteNonQueryAsync();
+            await QueryHelper.CommonExecNonQuery(_connectionString, "sp_UpdateSale", SaleDbHelper.MapToParam(model, true));
         }
         public async Task DeleteAndSaveAsync(int id)
         {
-            using var conn = new SqlConnection(_connectionString);
-            using var cmd = new SqlCommand("sp_DeleteSale", conn);
-
-            cmd.Parameters.AddWithValue("@Id", id);
-
-            await conn.OpenAsync();
-            await cmd.ExecuteNonQueryAsync();
+            SqlParameter[] parameters = new SqlParameter[1] {
+                new SqlParameter("@Id", id)
+            };
+            await QueryHelper.CommonExecNonQuery(_connectionString, "sp_DeleteSale", parameters);
         }
     }
 }
