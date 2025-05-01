@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using ProductList.Data.Entities;
+using ProductList.Data.Models;
 using ProductList.Data.Interfaces;
 using ProductList.Data.Utils;
 

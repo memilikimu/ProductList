@@ -1,5 +1,4 @@
-﻿using ProductList.Data.Contexts;
-using ProductList.Data.Entities;
+﻿using ProductList.Data.Models;
 
 namespace ProductList.Data.Interfaces
 {

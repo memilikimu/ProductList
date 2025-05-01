@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductList.Data.Entities
+namespace ProductList.Data.Models
 {
     public class Sale
     {

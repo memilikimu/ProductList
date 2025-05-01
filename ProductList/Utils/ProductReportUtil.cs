@@ -1,6 +1,4 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using ProductList.Data.Entities;
 using ProductList.Models;
 
 namespace ProductList.Utils

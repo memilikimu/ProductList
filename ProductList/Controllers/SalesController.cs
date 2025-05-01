@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductList.Models;
-using ProductList.Data.Contexts;
-using ProductList.Data.Entities;
 using ProductList.Data.Interfaces;
+using ProductList.Data.Models;
 using ProductList.Utils;
 using Rotativa.AspNetCore;
 
@@ -10,14 +9,12 @@ namespace ProductList.Controllers
 {
     public class SalesController : Controller
     {
-        private readonly AppDbContext _context;
         private readonly ILogger<SalesController> _logger;
         private readonly ISaleRepository _saleRepository;
 
-        public SalesController(AppDbContext context, ILogger<SalesController> logger, ISaleRepository saleRepository)
+        public SalesController(ILogger<SalesController> logger, ISaleRepository saleRepository)
         {
             _logger = logger;
-            _context = context;
             _saleRepository = saleRepository;
         }
 

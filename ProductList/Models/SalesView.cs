@@ -1,4 +1,4 @@
-﻿using ProductList.Data.Entities;
+﻿using ProductList.Data.Models;
 
 namespace ProductList.Models
 {

@@ -1,13 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using ProductList.Data.Concretes;
-using ProductList.Data.Contexts;
 using ProductList.Data.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
-var constr = builder.Configuration.GetConnectionString("DbConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(constr ?? throw new InvalidOperationException("Connection string 'DbConnection' not found.")));
-//options.UseSqlite("Data Source=laporan.db"));
 
 builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 
