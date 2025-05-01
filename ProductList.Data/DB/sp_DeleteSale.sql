@@ -1,0 +1,12 @@
+USE ProductList
+GO
+
+CREATE PROCEDURE sp_DeleteSale
+    @Id INT
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+    DELETE FROM Sale
+    WHERE Id = @Id;
+END;

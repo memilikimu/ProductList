@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using ProductList.Data.Entities;
 using System.Data;
 namespace ProductList.Data.Utils
 {

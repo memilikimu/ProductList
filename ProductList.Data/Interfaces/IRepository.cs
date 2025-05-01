@@ -3,7 +3,7 @@
 namespace ProductList.Data.Interfaces
 {
 
-    public interface IRepository<Tmodel>
+    public interface IRepository<Tmodel>:ICustomConnection<Tmodel>
     where Tmodel : class
     {
         Task<IEnumerable<Tmodel>> GetAllAsync(string search, int page, int size);

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ProductList.Data.Entities;
 using ProductList.Data.Interfaces;
@@ -7,13 +6,9 @@ using ProductList.Data.Utils;
 
 namespace ProductList.Data.Concretes
 {
-    public class SaleRepository : ISaleRepository
+    public class SaleRepository : CustomConnection<Sale>, ISaleRepository
     {
-        private readonly string _connectionString;
-        public SaleRepository(IConfiguration configuration)
-        {
-            _connectionString = configuration.GetConnectionString("DbConnection")!;
-        }
+        public SaleRepository(IConfiguration configuration) : base(configuration) { }
         public async Task<IEnumerable<Sale>> GetAllAsync(string product, int page, int pageSize)
         {
             
@@ -23,7 +18,8 @@ namespace ProductList.Data.Concretes
                 new SqlParameter("@PageNumber", page)
             };
             
-            return await QueryHelper.CommonModelsReader(_connectionString, "sp_GetAllSale", SaleDbHelper.MapReaderToModel, parameters);
+            //return await QueryHelper.CommonModelsReader(_connectionString, "sp_GetAllSale", SaleDbHelper.MapReaderToModel, parameters);
+            return await CommonModelsReader("sp_GetAllSale", SaleDbHelper.MapReaderToModel, parameters);
         }
 
         public async Task<int> GetCountAsync(string product)
@@ -51,23 +47,23 @@ namespace ProductList.Data.Concretes
             SqlParameter[] parameters = new SqlParameter[1] {
                 new SqlParameter("@Id", id)
             };
-            return await QueryHelper.CommonModelReader(_connectionString, "sp_GetSaleById", SaleDbHelper.MapReaderToModel, parameters);
+            return await CommonModelReader("sp_GetSaleById", SaleDbHelper.MapReaderToModel, parameters);
         }
 
         public async Task AddAndSaveAsync(Sale model)
         {
-            await QueryHelper.CommonExecNonQuery(_connectionString, "sp_InsertSale", SaleDbHelper.MapToParam(model, false));
+            await CommonExecNonQuery("sp_InsertSale", SaleDbHelper.MapToParam(model, false));
         }
         public async Task UpdateAndSaveAsync(Sale model)
         {
-            await QueryHelper.CommonExecNonQuery(_connectionString, "sp_UpdateSale", SaleDbHelper.MapToParam(model, true));
+            await CommonExecNonQuery("sp_UpdateSale", SaleDbHelper.MapToParam(model, true));
         }
         public async Task DeleteAndSaveAsync(int id)
         {
             SqlParameter[] parameters = new SqlParameter[1] {
                 new SqlParameter("@Id", id)
             };
-            await QueryHelper.CommonExecNonQuery(_connectionString, "sp_DeleteSale", parameters);
+            await CommonExecNonQuery("sp_DeleteSale", parameters);
         }
     }
 }

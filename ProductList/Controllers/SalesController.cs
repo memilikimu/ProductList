@@ -30,7 +30,7 @@ namespace ProductList.Controllers
                 await Task.WhenAll(items,  count);
 
                 var data = new SalesView().ToList(items.Result);
-                var totalPages = count.Result;
+                var totalPages = (int)Math.Ceiling(count.Result / (double)pageSize); ;
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = totalPages;
