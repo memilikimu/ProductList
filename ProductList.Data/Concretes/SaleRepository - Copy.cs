@@ -13,6 +13,7 @@ namespace ProductList.Data.Concretes
     public abstract class SaleRepository:ISaleRepository
     {
         private readonly string _connectionString;
+        public SaleRepository() { }
         public SaleRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection")!;

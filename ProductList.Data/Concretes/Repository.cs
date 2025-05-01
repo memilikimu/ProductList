@@ -7,15 +7,7 @@ namespace ProductList.Data.Concretes
     public abstract class Repository<TEntity> : IRepository<TEntity>
         where TEntity : class
     {
-        protected readonly AppDbContext _context;
-        private bool _disposed;
-        public DbSet<TEntity> Entities
-        {
-            get
-            {
-                return _context.Set<TEntity>();
-            }
-        }
+      
 
         public Repository(AppDbContext context)
         {

@@ -1,18 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using ProductList.Models;
-using ProductList.Data.Concretes;
 using ProductList.Data.Contexts;
 using ProductList.Data.Entities;
 using ProductList.Data.Interfaces;
-using System.Runtime.InteropServices;
-using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Vml.Office;
 using ProductList.Utils;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Rotativa.AspNetCore;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ProductList.Controllers
 {
@@ -33,23 +25,12 @@ namespace ProductList.Controllers
         {
             try
             {
-                var query = _saleRepository.GetTable().AsQueryable();
+                var items =  _saleRepository.GetAllAsync(searchString, page, pageSize);
+                var count = _saleRepository.GetCountAsync(searchString);
+                await Task.WhenAll(items,  count);
 
-                if (!string.IsNullOrEmpty(searchString))
-                {
-                    query = query.Where(x => x.Product.ToLower().Contains(searchString.ToLower()));
-                }
-
-                var totalItems = await query.CountAsync();
-                var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-                var items = await query
-                    .OrderBy(x => x.Id) // Optional, biar urut
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                .ToListAsync();
-
-                var data = new SalesView().ToList(items);
+                var data = new SalesView().ToList(items.Result);
+                var totalPages = count.Result;
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = totalPages;
@@ -155,7 +136,7 @@ namespace ProductList.Controllers
                 var sale = await _saleRepository.GetByIdAsync(id);
                 if (sale != null)
                 {
-                    await _saleRepository.DeleteAndSaveAsync(sale);
+                    await _saleRepository.DeleteAndSaveAsync(id);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -168,21 +149,7 @@ namespace ProductList.Controllers
 
         public async Task<IActionResult> ExportExcel(string searchString, int page = 1, int pageSize = 5)
         {
-            var query = _saleRepository.GetTable().AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                query = query.Where(x => x.Product.ToLower().Contains(searchString.ToLower()));
-            }
-
-            var totalItems = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-            var items = await query
-            .OrderBy(x => x.Id) // Optional, biar urut
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-            .ToListAsync();
+            var items = await _saleRepository.GetAllAsync(searchString, page, pageSize);
 
             var data = new SalesView().ToList(items);
             var workbook = new ProductReportUtil().Generate(data);
@@ -195,34 +162,14 @@ namespace ProductList.Controllers
 
         public async Task<IActionResult> GeneratePdf(string searchString, int page = 1, int pageSize = 5)
         {
-            var query = _saleRepository.GetTable().AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                query = query.Where(x => x.Product.ToLower().Contains(searchString.ToLower()));
-            }
-
-            var totalItems = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-            var items = await query
-            .OrderBy(x => x.Id) // Optional, biar urut
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-            .ToListAsync();
+            var items = await _saleRepository.GetAllAsync(searchString, page, pageSize);
 
             var data = new SalesView().ToList(items);
-
 
             return new ViewAsPdf("Report", data)
             {
                 FileName = $"Laporan-{DateTime.Now}.pdf"
             };
-
-            //return new ActionAsPdf("Laporan")
-            //{
-            //    FileName = "laporan.pdf"
-            //};
         }
     }
 }
